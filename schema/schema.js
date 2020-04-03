@@ -337,8 +337,8 @@ const Mutation = new GraphQLObjectType({
             args: {
                 name: { type: GraphQLNonNull(GraphQLString) },
                 description: { type: GraphQLString },
-                hero: { type: GraphQLNonNull(GraphQLString) },
-                target: { type: GraphQLNonNull(GraphQLID) },
+                hero: { type: GraphQLNonNull(GraphQLID) },
+                target: { type: GraphQLNonNull(GraphQLString) },
                 category: { type: GraphQLNonNull(GraphQLString) },
                 cost: { type: GraphQLFloat },
                 modifier1: { type: GraphQLString },
