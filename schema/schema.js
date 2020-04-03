@@ -219,8 +219,10 @@ const Mutation = new GraphQLObjectType({
                 spec: { type: GraphQLNonNull(GraphQLString) },
                 attack: { type: GraphQLNonNull(GraphQLInt) },
                 health: { type: GraphQLNonNull(GraphQLInt) },
+                currentHealth: { type: GraphQLNonNull(GraphQLInt) },
                 imgIdle: { type: GraphQLString },
-                imgAttack1: { type: GraphQLString }
+                imgAttack1: { type: GraphQLString },
+                imgDead: { type: GraphQLString }
             },
             resolve(parent, args) {
                 return character = Character.create({
@@ -229,8 +231,10 @@ const Mutation = new GraphQLObjectType({
                     spec: args.spec,
                     attack: args.attack,
                     health: args.health,
+                    currentHealth: args.currentHealth,
                     imgIdle: args.imgIdle,
-                    imgAttack1: args.imgAttack1
+                    imgAttack1: args.imgAttack1,
+                    imgDead: args.imgDead
                 });
             }
         },
@@ -328,6 +332,30 @@ const Mutation = new GraphQLObjectType({
         },
 
         //ABILITIES
+        addAbility: {
+            type: AbilityType,
+            args: {
+                name: { type: GraphQLNonNull(GraphQLString) },
+                description: { type: GraphQLString },
+                hero: { type: GraphQLNonNull(GraphQLString) },
+                target: { type: GraphQLNonNull(GraphQLID) },
+                category: { type: GraphQLNonNull(GraphQLString) },
+                cost: { type: GraphQLFloat },
+                modifier1: { type: GraphQLString },
+                modifier2: { type: GraphQLString },
+                healthChange: { type: GraphQLFloat },
+                attackChange: { type: GraphQLFloat },
+                manaChange: { type: GraphQLFloat },
+                animation: { type: GraphQLString },
+            },
+            resolve(parent, args) {
+                return tile = Tile.create({
+                    tileName: args.tileName,
+                    campaign: args.campaign,
+                });
+            }
+        },
+
         castAbility: {
             type: GraphQLBoolean,
             args: {
