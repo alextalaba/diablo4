@@ -144,6 +144,12 @@ const RootQuery = new GraphQLObjectType({
                 return character = Character.findAll();
             }
         },
+        abilities: {
+            type: GraphQLList(AbilityType),
+            resolve(parent, args) {
+                return ability = Ability.findAll();
+            }
+        },
         campaign: {
             type: CampaignType,
             args: { id: { type: GraphQLID } },
@@ -362,6 +368,20 @@ const Mutation = new GraphQLObjectType({
                     attackChange: args.attackChange,
                     manaChange: args.manaChange,
                     animation: args.animation,
+                });
+            }
+        },
+
+        removeAbility: {
+            type: GraphQLBoolean,
+            args: {
+                id: { type: GraphQLNonNull(GraphQLID) }
+            },
+            resolve(parent, args) {
+                return Ability.destroy({
+                    where: {
+                        id: args.args
+                    }
                 });
             }
         },
