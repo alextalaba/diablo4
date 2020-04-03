@@ -49,10 +49,6 @@ Character.init({
         type: DataTypes.STRING,
         allowNull: true
     },
-    imgAttack1: {
-        type: DataTypes.STRING,
-        allowNull: true
-    },
     imgDead: {
         type: DataTypes.STRING,
         allowNull: true

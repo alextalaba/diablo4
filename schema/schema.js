@@ -48,7 +48,6 @@ const CharacterType = new GraphQLObjectType({
         health: { type: GraphQLInt },
         currentHealth: { type: GraphQLInt },
         imgIdle: { type: GraphQLString },
-        imgAttack1: { type: GraphQLString },
         imgDead: { type: GraphQLString },
         tile: { type: GraphQLID },
         basics: {
@@ -225,9 +224,7 @@ const Mutation = new GraphQLObjectType({
                 spec: { type: GraphQLNonNull(GraphQLString) },
                 attack: { type: GraphQLNonNull(GraphQLInt) },
                 health: { type: GraphQLNonNull(GraphQLInt) },
-                currentHealth: { type: GraphQLNonNull(GraphQLInt) },
                 imgIdle: { type: GraphQLString },
-                imgAttack1: { type: GraphQLString },
                 imgDead: { type: GraphQLString }
             },
             resolve(parent, args) {
@@ -237,9 +234,8 @@ const Mutation = new GraphQLObjectType({
                     spec: args.spec,
                     attack: args.attack,
                     health: args.health,
-                    currentHealth: args.currentHealth,
+                    currentHealth: args.health,
                     imgIdle: args.imgIdle,
-                    imgAttack1: args.imgAttack1,
                     imgDead: args.imgDead
                 });
             }
