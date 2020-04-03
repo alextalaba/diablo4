@@ -15,16 +15,18 @@ const sequelize = new Sequelize('heroku_ab7d505eba761a9', 'bb173a92295bca', 'f3f
 });
 
 
-// Character.sync().then(
-//     async () => await Campaign.sync().then(
-//         async () => await Tile.sync().then(
-//             async () => await Item.sync().then(() => {
-//                 // Tile.belongsTo(Campaign, { foreignKey: 'campaign', targetKey: 'id' });
-//                 // Character.belongsTo(Tile, { foreignKey: 'tile', targetKey: 'id' });
-//                 // Item.belongsTo(Character, { foreignKey: 'character', targetKey: 'id' });
-//             }))
-//     )
-// )
+Character.sync().then(
+    async () => await Campaign.sync().then(
+        async () => await Tile.sync().then(
+            async () => await Item.sync().then(() => {
+                async () => await Ability.sync().then(() => {
+                    // Tile.belongsTo(Campaign, { foreignKey: 'campaign', targetKey: 'id' });
+                    // Character.belongsTo(Tile, { foreignKey: 'tile', targetKey: 'id' });
+                    // Item.belongsTo(Character, { foreignKey: 'character', targetKey: 'id' });
+                })
+            }))
+    )
+)
 
 // Character.sync({ alter: true }).then(
 //     async () => await Campaign.sync({ alter: true }).then(
