@@ -9,8 +9,8 @@ const Ability = require('../models/ability');
 
 const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLFloat, GraphQLBoolean, GraphQLInt, GraphQLSchema, GraphQLNonNull, GraphQLList } = graphql;
 const { Sequelize, Model, DataTypes } = require("sequelize");
-const sequelize = new Sequelize('hag', 'root', 'root', {
-    host: 'localhost',
+const sequelize = new Sequelize('heroku_ab7d505eba761a9', 'bb173a92295bca', 'f3fcdae1', {
+    host: 'us-cdbr-iron-east-01.cleardb.net',
     dialect: 'mysql'
 });
 
