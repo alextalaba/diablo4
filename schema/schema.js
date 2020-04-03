@@ -349,9 +349,19 @@ const Mutation = new GraphQLObjectType({
                 animation: { type: GraphQLString },
             },
             resolve(parent, args) {
-                return tile = Tile.create({
-                    tileName: args.tileName,
-                    campaign: args.campaign,
+                return ability = Ability.create({
+                    name: args.name,
+                    description: args.description,
+                    hero: args.hero,
+                    target: args.target,
+                    category: args.category,
+                    cost: args.cost,
+                    modifier1: args.modifier1,
+                    modifier2: args.modifier2,
+                    healthChange: args.healthChange,
+                    attackChange: args.attackChange,
+                    manaChange: args.manaChange,
+                    animation: args.animation,
                 });
             }
         },
