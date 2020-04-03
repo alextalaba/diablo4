@@ -380,7 +380,7 @@ const Mutation = new GraphQLObjectType({
             resolve(parent, args) {
                 return Ability.destroy({
                     where: {
-                        id: args.args
+                        id: args.id
                     }
                 });
             }
