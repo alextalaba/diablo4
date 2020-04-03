@@ -13,8 +13,8 @@ async () => {
     }
 }
 
-class Character extends Model { }
-Character.init({
+class Ability extends Model { }
+Ability.init({
     id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -25,35 +25,47 @@ Character.init({
         type: DataTypes.STRING,
         allowNull: false
     },
-    cls: {
+    description: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    spec: {
-        type: DataTypes.STRING,
-        allowNull: true
-    },
-    attack: {
+    hero: {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    health: {
-        type: DataTypes.INTEGER,
+    target: {
+        type: DataTypes.STRING,
         allowNull: false
     },
-    currentHealth: {
-        type: DataTypes.INTEGER,
-        allowNull: true
-    },
-    imgIdle: {
+    category: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: false
     },
-    imgAttack1: {
+    modifier1: {
         type: DataTypes.STRING,
+        allowNull: false
+    },
+    modifier2: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    cost: {
+        type: DataTypes.FLOAT,
         allowNull: true
     },
-    imgDead: {
+    healthChange: {
+        type: DataTypes.FLOAT,
+        allowNull: true
+    },
+    attackChange: {
+        type: DataTypes.FLOAT,
+        allowNull: true
+    },
+    manaChange: {
+        type: DataTypes.FLOAT,
+        allowNull: true
+    },
+    animation: {
         type: DataTypes.STRING,
         allowNull: true
     }
@@ -61,13 +73,14 @@ Character.init({
 },
     {
         timestamps: false,
-        tableName: 'character',
+        tableName: 'ability',
         sequelize,
-        modelName: 'Character',
+        modelName: 'Ability',
 
     });
 
 
-// Character.sync({ alter: true });
 
-module.exports = Character;
+// Ability.sync({ alter: true });
+
+module.exports = Ability;

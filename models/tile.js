@@ -56,7 +56,6 @@ Tile.init({
 
     });
 
-Tile.belongsTo(Campaign, { foreignKey: 'campaign', targetKey: 'id' });
 
 
 // Tile.sync({ alter: true });

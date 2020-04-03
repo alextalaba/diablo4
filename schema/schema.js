@@ -5,9 +5,9 @@ const Character = require('../models/character');
 const Campaign = require('../models/campaign');
 const Tile = require('../models/tile');
 const Item = require('../models/item');
+const Ability = require('../models/ability');
 
-
-const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLBoolean, GraphQLInt, GraphQLSchema, GraphQLNonNull, GraphQLList } = graphql;
+const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLFloat, GraphQLBoolean, GraphQLInt, GraphQLSchema, GraphQLNonNull, GraphQLList } = graphql;
 const { Sequelize, Model, DataTypes } = require("sequelize");
 const sequelize = new Sequelize('hag', 'root', 'root', {
     host: 'localhost',
@@ -15,25 +15,52 @@ const sequelize = new Sequelize('hag', 'root', 'root', {
 });
 
 
-Character.sync();
-Campaign.sync();
-Tile.sync();
-Item.sync();
+// Character.sync().then(
+//     async () => await Campaign.sync().then(
+//         async () => await Tile.sync().then(
+//             async () => await Item.sync().then(() => {
+//                 // Tile.belongsTo(Campaign, { foreignKey: 'campaign', targetKey: 'id' });
+//                 // Character.belongsTo(Tile, { foreignKey: 'tile', targetKey: 'id' });
+//                 // Item.belongsTo(Character, { foreignKey: 'character', targetKey: 'id' });
+//             }))
+//     )
+// )
 
-// Character.sync({ alter: true });
-// Campaign.sync({ alter: true });
-// Tile.sync({ alter: true });
-// Item.sync({ alterF: true });
+// Character.sync({ alter: true }).then(
+//     async () => await Campaign.sync({ alter: true }).then(
+//         async () => await Tile.sync({ alter: true }).then(
+//             async () => await Character.sync({ alter: true }).then(
+//                 async () => await Item.sync({ alter: true }))
+//         )
+//     )
+// )
 
 const CharacterType = new GraphQLObjectType({
     name: 'Character',
     fields: () => ({
         id: { type: GraphQLID },
-        charName: { type: GraphQLString },
-        charClass: { type: GraphQLString },
-        charSpec: { type: GraphQLString },
-        charAttack: { type: GraphQLInt },
-        charHealth: { type: GraphQLInt },
+        name: { type: GraphQLString },
+        cls: { type: GraphQLString },
+        spec: { type: GraphQLString },
+        attack: { type: GraphQLInt },
+        health: { type: GraphQLInt },
+        currentHealth: { type: GraphQLInt },
+        imgIdle: { type: GraphQLString },
+        imgAttack1: { type: GraphQLString },
+        imgDead: { type: GraphQLString },
+        tile: { type: GraphQLID },
+        basics: {
+            type: GraphQLList(AbilityType),
+            resolve(parent, args) {
+                return basics = Ability.findAll({ attributes: ['id', 'name', 'description', 'animation'], where: { hero: parent.id, category: 'basic' } });
+            }
+        },
+        spells: {
+            type: GraphQLList(AbilityType),
+            resolve(parent, args) {
+                return spells = Ability.findAll({ attributes: ['id', 'name', 'description', 'animation'], where: { hero: parent.id, category: 'spell' } });
+            }
+        }
     })
 });
 
@@ -69,8 +96,32 @@ const ItemType = new GraphQLObjectType({
     name: 'Item',
     fields: () => ({
         id: { type: GraphQLID },
-        tileId: { type: GraphQLID },
-        characterId: { type: GraphQLID },
+        character: { type: GraphQLID },
+    })
+});
+
+const AbilityType = new GraphQLObjectType({
+    name: 'Ability',
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        description: { type: GraphQLString },
+        hero: {
+            type: CharacterType,
+            resolve(parent, args) {
+                return hero = Character.findByPk(parent.hero);
+            }
+        },
+        target: { type: GraphQLString },
+        category: { type: GraphQLString },
+        modifier1: { type: GraphQLString },
+        modifier2: { type: GraphQLString },
+        cost: { type: GraphQLFloat },
+        healthChange: { type: GraphQLFloat },
+        manaChange: { type: GraphQLFloat },
+        attackChange: { type: GraphQLFloat },
+        animation: { type: GraphQLString },
+
     })
 });
 
@@ -108,7 +159,48 @@ const RootQuery = new GraphQLObjectType({
             type: GraphQLList(TileType),
             args: { campaign: { type: GraphQLID } },
             resolve(parent, args) {
-                return tile = Tile.findAll({ where: { campaign: args.campaign } });
+                return tile = Tile.findAll({
+                    attributes: ["id", "tileColor"],
+                    where: { campaign: args.campaign }
+                });
+            }
+        },
+        tilesAtXY: {
+            type: GraphQLList(TileType),
+            args: {
+                xAxis: { type: GraphQLInt },
+                yAxis: { type: GraphQLInt },
+                campaign: { type: GraphQLID }
+            },
+            resolve(parent, args) {
+                return tile = Tile.findAll({
+                    attributes: ["id", "tileColor", "xAxis", "yAxis"],
+                    where: {
+                        campaign: args.campaign,
+                        xAxis:
+                            [
+                                args.xAxis - 4,
+                                args.xAxis - 3,
+                                args.xAxis - 2,
+                                args.xAxis - 1,
+                                args.xAxis,
+                                args.xAxis + 1,
+                                args.xAxis + 2,
+                                args.xAxis + 3,
+                                args.xAxis + 4
+                            ],
+                        yAxis:
+                            [
+                                args.yAxis - 3,
+                                args.yAxis - 2,
+                                args.yAxis - 1,
+                                args.yAxis,
+                                args.yAxis + 1,
+                                args.yAxis + 2,
+                                args.yAxis + 3,
+                            ],
+                    }
+                });
             }
         },
     }
@@ -120,19 +212,23 @@ const Mutation = new GraphQLObjectType({
         addCharacter: {
             type: CharacterType,
             args: {
-                charName: { type: GraphQLNonNull(GraphQLString) },
-                charClass: { type: GraphQLNonNull(GraphQLString) },
-                charSpec: { type: GraphQLNonNull(GraphQLString) },
-                charAttack: { type: GraphQLNonNull(GraphQLInt) },
-                charHealth: { type: GraphQLNonNull(GraphQLInt) },
+                name: { type: GraphQLNonNull(GraphQLString) },
+                cls: { type: GraphQLNonNull(GraphQLString) },
+                spec: { type: GraphQLNonNull(GraphQLString) },
+                attack: { type: GraphQLNonNull(GraphQLInt) },
+                health: { type: GraphQLNonNull(GraphQLInt) },
+                imgIdle: { type: GraphQLString },
+                imgAttack1: { type: GraphQLString }
             },
             resolve(parent, args) {
                 return character = Character.create({
-                    charName: args.charName,
-                    charClass: args.charClass,
-                    charSpec: args.charSpec,
-                    charAttack: args.charAttack,
-                    charHealth: args.charHealth,
+                    name: args.name,
+                    cls: args.cls,
+                    spec: args.spec,
+                    attack: args.attack,
+                    health: args.health,
+                    imgIdle: args.imgIdle,
+                    imgAttack1: args.imgAttack1
                 });
             }
         },
@@ -216,6 +312,54 @@ const Mutation = new GraphQLObjectType({
                     await transaction.rollback();
                     return error;
                 }
+            }
+        },
+        changeTileColor: {
+            type: TileType,
+            args: {
+                id: { type: GraphQLNonNull(GraphQLID) },
+                tileColor: { type: GraphQLNonNull(GraphQLString) },
+            },
+            resolve(parent, args) {
+                return tile = Tile.update({ tileColor: args.tileColor }, { where: { id: args.id } })
+            }
+        },
+
+        //ABILITIES
+        castAbility: {
+            type: GraphQLBoolean,
+            args: {
+                id: { type: GraphQLNonNull(GraphQLID) },
+                targetId: { type: GraphQLNonNull(GraphQLID) },
+            },
+            async resolve(parent, args) {
+                let ability = await Ability.findByPk(args.id).then(async (ability) => {
+                    let hero = await Character.findByPk(ability.hero).then(async (hero) => {
+                        if (ability.target === 'enemy') {
+                            let enemy = await Character.findByPk(args.targetId).then(async (enemy) => {
+                                if (ability.modifier1 === 'attack') {
+                                    await Character.update({
+                                        currentHealth: (enemy.currentHealth + hero.attack * ability.healthChange)
+                                    }, { where: { id: args.targetId } }).then(() => { return true })
+                                }
+                            });
+
+                        }
+                        if (ability.target === 'self') {
+                            let enemy = await Character.findByPk(args.targetId).then(async (enemy) => {
+                                if (ability.modifier1 === 'health') {
+                                    await Character.update({
+                                        currentHealth: (hero.currentHealth + hero.health * ability.healthChange) > hero.health ?
+                                            hero.health : (hero.currentHealth + hero.health * ability.healthChange)
+                                    }, { where: { id: hero.id } }).then(() => { return true })
+                                }
+                            });
+
+                        }
+                    });;
+                })
+
+
             }
         }
     }

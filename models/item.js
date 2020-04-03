@@ -34,8 +34,6 @@ Item.init({
     });
 
 
-Item.belongsTo(Tile, { foreignKey: 'tileId', targetKey: 'id' });
-Item.belongsTo(Character, { foreignKey: 'characterId', targetKey: 'id' });
 
 
 // Item.sync({ alter: true });

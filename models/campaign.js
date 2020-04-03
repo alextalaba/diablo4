@@ -51,7 +51,6 @@ Campaign.init({
 
     });
 
-// Campaign.hasMany(Tile)
 // Tile.belongsTo(Campaign, { foreignKey: 'campaignId', targetKey: 'id' });
 
 
