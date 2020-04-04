@@ -16,7 +16,7 @@ const sequelize = new Sequelize('heroku_bc9866ebbed68b0', 'bc61100f7ed2c3', '13d
 });
 
 
-Character.sync({ alter: true }).then(
+Character.sync().then(
     async () => await Campaign.sync().then(
         async () => await Tile.sync().then(
             async () => await Item.sync().then(
