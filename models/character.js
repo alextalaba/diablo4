@@ -25,6 +25,10 @@ Character.init({
         type: DataTypes.STRING,
         allowNull: false
     },
+    role: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     cls: {
         type: DataTypes.STRING,
         allowNull: false

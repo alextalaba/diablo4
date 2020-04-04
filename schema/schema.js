@@ -6,6 +6,7 @@ const Campaign = require('../models/campaign');
 const Tile = require('../models/tile');
 const Item = require('../models/item');
 const Ability = require('../models/ability');
+const Battle = require('../models/battle');
 
 const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLFloat, GraphQLBoolean, GraphQLInt, GraphQLSchema, GraphQLNonNull, GraphQLList } = graphql;
 const { Sequelize, Model, DataTypes } = require("sequelize");
@@ -15,15 +16,20 @@ const sequelize = new Sequelize('heroku_bc9866ebbed68b0', 'bc61100f7ed2c3', '13d
 });
 
 
-Character.sync().then(
+Character.sync({ alter: true }).then(
     async () => await Campaign.sync().then(
         async () => await Tile.sync().then(
             async () => await Item.sync().then(
-                async () => await Ability.sync().then(() => {
-                    // Tile.belongsTo(Campaign, { foreignKey: 'campaign', targetKey: 'id' });
-                    // Character.belongsTo(Tile, { foreignKey: 'tile', targetKey: 'id' });
-                    // Item.belongsTo(Character, { foreignKey: 'character', targetKey: 'id' });
-                }))
+                async () => await Ability.sync().then(
+                    async () => await Battle.sync().then(
+
+                        () => {
+                            // Tile.belongsTo(Campaign, { foreignKey: 'campaign', targetKey: 'id' });
+                            // Character.belongsTo(Tile, { foreignKey: 'tile', targetKey: 'id' });
+                            // Item.belongsTo(Character, { foreignKey: 'character', targetKey: 'id' });
+                        })
+                )
+            )
         )
     )
 )
@@ -42,6 +48,7 @@ const CharacterType = new GraphQLObjectType({
     fields: () => ({
         id: { type: GraphQLID },
         name: { type: GraphQLString },
+        role: { type: GraphQLString },
         cls: { type: GraphQLString },
         spec: { type: GraphQLString },
         attack: { type: GraphQLInt },
@@ -220,6 +227,7 @@ const Mutation = new GraphQLObjectType({
             type: CharacterType,
             args: {
                 name: { type: GraphQLNonNull(GraphQLString) },
+                role: { type: GraphQLNonNull(GraphQLString) },
                 cls: { type: GraphQLNonNull(GraphQLString) },
                 spec: { type: GraphQLNonNull(GraphQLString) },
                 attack: { type: GraphQLNonNull(GraphQLInt) },
@@ -230,6 +238,7 @@ const Mutation = new GraphQLObjectType({
             resolve(parent, args) {
                 return character = Character.create({
                     name: args.name,
+                    role: args.role,
                     cls: args.cls,
                     spec: args.spec,
                     attack: args.attack,
