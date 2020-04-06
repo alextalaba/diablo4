@@ -226,7 +226,7 @@ const Mutation = new GraphQLObjectType({
                 background: { type: GraphQLNonNull(GraphQLString) },
             },
             resolve(parent, args) {
-                return campaign = Campaign.create({
+                return battle = Battle.create({
                     name: 'random name',
                     heroId: args.heroId,
                     enemyId: args.enemyId,
