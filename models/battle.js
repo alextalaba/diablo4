@@ -12,15 +12,27 @@ Battle.init({
         primaryKey: true,
         autoIncrement: true
     },
+    name: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     heroId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
     },
     enemyId: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
-    won: {
+    heroPosition: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    enemyPosition: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    outcome: {
         type: DataTypes.STRING,
         allowNull: true
     },

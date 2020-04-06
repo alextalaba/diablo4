@@ -18,17 +18,13 @@ const sequelize = new Sequelize('heroku_bc9866ebbed68b0', 'bc61100f7ed2c3', '13d
 
 Character.sync().then(
     async () => await Campaign.sync().then(
-        async () => await Tile.sync().then(
-            async () => await Item.sync().then(
-                async () => await Ability.sync().then(
-                    async () => await Battle.sync().then(
-
-                        () => {
-                            // Tile.belongsTo(Campaign, { foreignKey: 'campaign', targetKey: 'id' });
-                            // Character.belongsTo(Tile, { foreignKey: 'tile', targetKey: 'id' });
-                            // Item.belongsTo(Character, { foreignKey: 'character', targetKey: 'id' });
-                        })
-                )
+        async () => await Item.sync().then(
+            async () => await Ability.sync().then(
+                async () => await Battle.sync({ alter: true }).then(
+                    () => {
+                        // Character.belongsTo(Tile, { foreignKey: 'tile', targetKey: 'id' });
+                        // Item.belongsTo(Character, { foreignKey: 'character', targetKey: 'id' });
+                    })
             )
         )
     )
@@ -81,24 +77,21 @@ const CampaignType = new GraphQLObjectType({
         cpImage: { type: GraphQLString },
         cpSize: { type: GraphQLString },
     })
-});
+})
 
-const TileType = new GraphQLObjectType({
-    name: 'Tile',
+const BattleType = new GraphQLObjectType({
+    name: 'Battle',
     fields: () => ({
         id: { type: GraphQLID },
-        tileName: { type: GraphQLString },
-        tileColor: { type: GraphQLString },
-        campaign: {
-            type: CampaignType,
-            resolve(parent, args) {
-                return campaign = Campaign.findByPk(parent.campaign);
-            }
-        },
-        xAxis: { type: GraphQLInt },
-        yAxis: { type: GraphQLInt },
+        name: { type: GraphQLString },
+        heroId: { type: GraphQLID },
+        enemyId: { type: GraphQLID },
+        heroPosition: { type: GraphQLInt },
+        enemyPosition: { type: GraphQLInt },
+        outcome: { type: GraphQLString },
+        background: { type: GraphQLString },
     })
-});
+})
 
 const ItemType = new GraphQLObjectType({
     name: 'Item',
@@ -169,52 +162,11 @@ const RootQuery = new GraphQLObjectType({
                 return campaign = Campaign.findAll();
             }
         },
-        tiles: {
-            type: GraphQLList(TileType),
-            args: { campaign: { type: GraphQLID } },
+        battle: {
+            type: BattleType,
+            args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                return tile = Tile.findAll({
-                    attributes: ["id", "tileColor"],
-                    where: { campaign: args.campaign }
-                });
-            }
-        },
-        tilesAtXY: {
-            type: GraphQLList(TileType),
-            args: {
-                xAxis: { type: GraphQLInt },
-                yAxis: { type: GraphQLInt },
-                campaign: { type: GraphQLID }
-            },
-            resolve(parent, args) {
-                return tile = Tile.findAll({
-                    attributes: ["id", "tileColor", "xAxis", "yAxis"],
-                    where: {
-                        campaign: args.campaign,
-                        xAxis:
-                            [
-                                args.xAxis - 4,
-                                args.xAxis - 3,
-                                args.xAxis - 2,
-                                args.xAxis - 1,
-                                args.xAxis,
-                                args.xAxis + 1,
-                                args.xAxis + 2,
-                                args.xAxis + 3,
-                                args.xAxis + 4
-                            ],
-                        yAxis:
-                            [
-                                args.yAxis - 3,
-                                args.yAxis - 2,
-                                args.yAxis - 1,
-                                args.yAxis,
-                                args.yAxis + 1,
-                                args.yAxis + 2,
-                                args.yAxis + 3,
-                            ],
-                    }
-                });
+                return battle = Battle.findByPk(args.id);
             }
         },
     }
@@ -266,81 +218,25 @@ const Mutation = new GraphQLObjectType({
                 });
             }
         },
-        addTile: {
-            type: TileType,
+        addBattle: {
+            type: BattleType,
             args: {
-                tileName: { type: GraphQLNonNull(GraphQLString) },
-                campaign: { type: GraphQLNonNull(GraphQLID) },
+                heroId: { type: GraphQLNonNull(GraphQLID) },
+                enemyId: { type: GraphQLNonNull(GraphQLID) },
+                background: { type: GraphQLNonNull(GraphQLString) },
             },
             resolve(parent, args) {
-                return tile = Tile.create({
-                    tileName: args.tileName,
-                    campaign: args.campaign,
-                });
+                return campaign = Campaign.create({
+                    name: 'random name',
+                    heroId: args.heroId,
+                    enemyId: args.enemyId,
+                    heroPosition: 3,
+                    enemyPosition: 10,
+                    background: args.background,
+                })
             }
         },
-        addTiles: {
-            type: GraphQLList(TileType),
-            args: {
-                campaign: { type: GraphQLNonNull(GraphQLID) },
-                size: { type: GraphQLNonNull(GraphQLString) }
-            },
-            async resolve(parent, args) {
-                let i, j, tiles = [];
 
-                let transaction;
-                try {
-                    transaction = await sequelize.transaction();
-                    let x, y;
-                    switch (args.size) {
-                        case "small": {
-                            x = 2, y = 3;
-                            break;
-                        }
-                        case "large": {
-                            x = 10, y = 15;
-                            break;
-                        }
-                        case "medium": default: {
-                            x = 41, y = 21;
-                            break;
-
-                        }
-                    }
-                    for (j = 0; j < y; j++) {
-                        for (i = 0; i < x; i++) {
-                            tiles[j + i] = await Tile.create({
-                                tileName: ('cp_' + args.campaign + '_tile_' + j + '_' + i),
-                                campaign: args.campaign,
-                                xAxis: i,
-                                yAxis: j,
-                                tileColor: (i === 0 || j === 0 || i === (x - 1) || j === (y - 1)) ? 'grey' : 'green'
-                            },
-                                {
-                                    transaction
-                                }
-                            )
-                        }
-                    }
-                    await transaction.commit();
-                    return tiles;
-
-                } catch (error) {
-                    await transaction.rollback();
-                    return error;
-                }
-            }
-        },
-        changeTileColor: {
-            type: TileType,
-            args: {
-                id: { type: GraphQLNonNull(GraphQLID) },
-                tileColor: { type: GraphQLNonNull(GraphQLString) },
-            },
-            resolve(parent, args) {
-                return tile = Tile.update({ tileColor: args.tileColor }, { where: { id: args.id } })
-            }
-        },
 
         //ABILITIES
         addAbility: {
@@ -423,8 +319,6 @@ const Mutation = new GraphQLObjectType({
                         }
                     });;
                 })
-
-
             }
         }
     }
