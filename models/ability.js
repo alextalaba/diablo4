@@ -41,6 +41,10 @@ Ability.init({
         type: DataTypes.STRING,
         allowNull: false
     },
+    range: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
     modifier1: {
         type: DataTypes.STRING,
         allowNull: false

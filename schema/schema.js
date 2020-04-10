@@ -19,7 +19,7 @@ const sequelize = new Sequelize('heroku_bc9866ebbed68b0', 'bc61100f7ed2c3', '13d
 Character.sync().then(
     async () => await Campaign.sync().then(
         async () => await Item.sync().then(
-            async () => await Ability.sync().then(
+            async () => await Ability.sync({ alter: true }).then(
                 async () => await Battle.sync({ alter: true }).then(
                     () => {
                         // Character.belongsTo(Tile, { foreignKey: 'tile', targetKey: 'id' });
@@ -115,6 +115,7 @@ const AbilityType = new GraphQLObjectType({
         },
         target: { type: GraphQLString },
         category: { type: GraphQLString },
+        range: { type: GraphQLInt },
         modifier1: { type: GraphQLString },
         modifier2: { type: GraphQLString },
         cost: { type: GraphQLFloat },
@@ -247,6 +248,7 @@ const Mutation = new GraphQLObjectType({
                 hero: { type: GraphQLNonNull(GraphQLID) },
                 target: { type: GraphQLNonNull(GraphQLString) },
                 category: { type: GraphQLNonNull(GraphQLString) },
+                range: { type: GraphQLInt },
                 cost: { type: GraphQLFloat },
                 modifier1: { type: GraphQLString },
                 modifier2: { type: GraphQLString },
@@ -262,6 +264,7 @@ const Mutation = new GraphQLObjectType({
                     hero: args.hero,
                     target: args.target,
                     category: args.category,
+                    range: args.range,
                     cost: args.cost,
                     modifier1: args.modifier1,
                     modifier2: args.modifier2,
