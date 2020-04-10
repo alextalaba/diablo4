@@ -56,13 +56,13 @@ const CharacterType = new GraphQLObjectType({
         basics: {
             type: GraphQLList(AbilityType),
             resolve(parent, args) {
-                return basics = Ability.findAll({ attributes: ['id', 'name', 'description', 'animation'], where: { hero: parent.id, category: 'basic' } });
+                return basics = Ability.findAll({ attributes: ['id', 'name', 'description', 'animation', 'range'], where: { hero: parent.id, category: 'basic' } });
             }
         },
         spells: {
             type: GraphQLList(AbilityType),
             resolve(parent, args) {
-                return spells = Ability.findAll({ attributes: ['id', 'name', 'description', 'animation'], where: { hero: parent.id, category: 'spell' } });
+                return spells = Ability.findAll({ attributes: ['id', 'name', 'description', 'animation', 'range'], where: { hero: parent.id, category: 'spell' } });
             }
         }
     })
