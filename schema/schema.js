@@ -238,7 +238,7 @@ const Mutation = new GraphQLObjectType({
             }
         },
         battleCharacterMove: {
-            type: Boolean,
+            type: GraphQLBoolean,
             args: {
                 id: { type: GraphQLNonNull(GraphQLID) },
                 character: { type: GraphQLNonNull(GraphQLString) },
