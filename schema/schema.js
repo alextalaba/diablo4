@@ -231,10 +231,39 @@ const Mutation = new GraphQLObjectType({
                     name: 'random name',
                     heroId: args.heroId,
                     enemyId: args.enemyId,
-                    heroPosition: 3,
+                    heroPosition: 2,
                     enemyPosition: 10,
                     background: args.background,
                 })
+            }
+        },
+        battleCharacterMove: {
+            type: Boolean,
+            args: {
+                id: { type: GraphQLNonNull(GraphQLID) },
+                character: { type: GraphQLNonNull(GraphQLString) },
+                direction: { type: GraphQLNonNull(GraphQLString) },
+            },
+            async resolve(parent, args) {
+                (args.character === 'hero') ?
+                    Battle.findByPk(args.id).then((battle) => {
+                        args.direction === 'right' ?
+                            Battle.update({
+                                heroPosition: (battle.heroPosition + 1)
+                            }, { where: { id: args.id } }).then(() => { return true }) :
+                            Battle.update({
+                                heroPosition: (battle.heroPosition - 1)
+                            }, { where: { id: args.id } }).then(() => { return true })
+                    }) :
+                    Battle.findByPk(args.id).then((battle) => {
+                        args.direction === 'right' ?
+                            Battle.update({
+                                enemyPosition: (battle.enemyPosition + 1)
+                            }, { where: { id: args.id } }).then(() => { return true }) :
+                            Battle.update({
+                                enemyPosition: (battle.enemyPosition - 1)
+                            }, { where: { id: args.id } }).then(() => { return true })
+                    })
             }
         },
 
