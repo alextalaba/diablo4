@@ -242,27 +242,19 @@ const Mutation = new GraphQLObjectType({
             args: {
                 id: { type: GraphQLNonNull(GraphQLID) },
                 character: { type: GraphQLNonNull(GraphQLString) },
-                direction: { type: GraphQLNonNull(GraphQLString) },
+                modifyBy: { type: GraphQLNonNull(GraphQLInt) },
             },
             async resolve(parent, args) {
                 (args.character === 'hero') ?
                     Battle.findByPk(args.id).then((battle) => {
-                        args.direction === 'right' ?
-                            Battle.update({
-                                heroPosition: (battle.heroPosition + 1)
-                            }, { where: { id: args.id } }).then(() => { return true }) :
-                            Battle.update({
-                                heroPosition: (battle.heroPosition - 1)
-                            }, { where: { id: args.id } }).then(() => { return true })
+                        Battle.update({
+                            heroPosition: (battle.heroPosition + args.modifyBy)
+                        }, { where: { id: args.id } }).then(() => { return true })
                     }) :
                     Battle.findByPk(args.id).then((battle) => {
-                        args.direction === 'right' ?
-                            Battle.update({
-                                enemyPosition: (battle.enemyPosition + 1)
-                            }, { where: { id: args.id } }).then(() => { return true }) :
-                            Battle.update({
-                                enemyPosition: (battle.enemyPosition - 1)
-                            }, { where: { id: args.id } }).then(() => { return true })
+                        Battle.update({
+                            enemyPosition: (battle.enemyPosition + args.modifyBy)
+                        }, { where: { id: args.id } }).then(() => { return true })
                     })
             }
         },
