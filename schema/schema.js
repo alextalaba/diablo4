@@ -16,19 +16,19 @@ const sequelize = new Sequelize('heroku_bc9866ebbed68b0', 'bc61100f7ed2c3', '13d
 });
 
 
-Character.sync().then(
-    async () => await Campaign.sync().then(
-        async () => await Item.sync().then(
-            async () => await Ability.sync({ alter: true }).then(
-                async () => await Battle.sync({ alter: true }).then(
-                    () => {
-                        // Character.belongsTo(Tile, { foreignKey: 'tile', targetKey: 'id' });
-                        // Item.belongsTo(Character, { foreignKey: 'character', targetKey: 'id' });
-                    })
-            )
-        )
-    )
-)
+// Character.sync().then(
+//     async () => await Campaign.sync().then(
+//         async () => await Item.sync().then(
+//             async () => await Ability.sync().then(
+//                 async () => await Battle.sync().then(
+//                     () => {
+//                         // Character.belongsTo(Tile, { foreignKey: 'tile', targetKey: 'id' });
+//                         // Item.belongsTo(Character, { foreignKey: 'character', targetKey: 'id' });
+//                     })
+//             )
+//         )
+//     )
+// )
 
 // Character.sync({ alter: true }).then(
 //     async () => await Campaign.sync({ alter: true }).then(
@@ -231,7 +231,7 @@ const Mutation = new GraphQLObjectType({
                     name: 'random name',
                     heroId: args.heroId,
                     enemyId: args.enemyId,
-                    heroPosition: 2,
+                    heroPosition: 0,
                     enemyPosition: 10,
                     background: args.background,
                 })
